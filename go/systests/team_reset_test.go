@@ -54,6 +54,7 @@ func readChatsWithError(team smuTeam, u *smuUser) (messages []chat1.MessageUnbox
 			return messages, err
 		}
 
+		u.ctx.t.Logf("readChatsWithError polling for KBFS")
 		time.Sleep(wait)
 		totalWait += wait
 	}
@@ -65,9 +66,7 @@ func readChatsWithError(team smuTeam, u *smuUser) (messages []chat1.MessageUnbox
 func readChats(team smuTeam, u *smuUser, nMessages int) {
 	messages, err := readChatsWithError(team, u)
 	t := u.ctx.t
-	if err != nil {
-		u.ctx.t.Fatal(err)
-	}
+	require.NoError(t, err)
 	require.Equal(t, nMessages, len(messages))
 	for i, msg := range messages {
 		require.Equal(t, msg.Valid().MessageBody.Text().Body, fmt.Sprintf("%d", len(messages)-i-1))
